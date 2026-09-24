@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+scikit-learn
+gensim
+sentence-transformers
+pandas
+joblib

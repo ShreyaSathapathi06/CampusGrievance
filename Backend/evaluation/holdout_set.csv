@@ -1,0 +1,45 @@
+complaint,actual_category
+"The overhead fan in room 204 makes a loud grinding noise",Infrastructure
+"None of the charging points near the reading area work",Infrastructure
+"The washroom on the second floor has had no water for two days",Infrastructure
+"My laptop won't connect to the campus network even though it worked last week",Infrastructure
+"The whiteboard marker ink has completely dried out in every classroom",Infrastructure
+"The elevator in the main block has been stuck between floors twice this month",Infrastructure
+"There's a strong gas smell coming from behind the chemistry building",Infrastructure Hazard
+"The handrail on the second-floor stairs wobbles when you hold it",Infrastructure Hazard
+"Someone left a frayed extension cord running across the hallway floor",Infrastructure Hazard
+"The fire alarm panel has been beeping constantly for a week and nobody has checked it",Infrastructure Hazard
+"Part of the ceiling tile fell down near the entrance yesterday",Infrastructure Hazard
+"The pathway near the hostel gate has no streetlight at all after dark",Infrastructure Hazard
+"I was never given access to the shared drive for my elective course",Academic
+"The syllabus posted online doesn't match what's being taught in class",Academic
+"My re-evaluation request from last semester still shows no update",Academic
+"I can't find where to check my current attendance percentage",Academic
+"The online quiz didn't accept my submission even though I finished with time to spare",Academic
+"Nobody has explained how the grading for the group presentation will work",Academic
+"One of my lecturers dismisses questions instead of answering them",Faculty
+"A teacher gave our whole batch a lower grade after one student complained, which feels unfair",Faculty
+"Our guide keeps postponing project review meetings without any notice",Faculty
+"A lecturer made a comment mocking a student's accent in front of the class",Faculty
+"The same instructor has not returned graded papers from over a month ago",Faculty
+"There were ants all over the serving counter at lunch today",Canteen
+"The juice being sold at the counter tasted off and slightly sour",Canteen
+"Prices at the food counter went up without any notice being put up",Canteen
+"The same three items have been on the menu for the entire month",Canteen
+"I found a plastic wrapper mixed into my rice",Canteen
+"My name is still missing from the official convocation list",Administration
+"I paid the exam fee but the portal still shows it as due",Administration
+"Nobody at the front desk could tell me the status of my transfer request",Administration
+"The signature required on my internship letter hasn't been provided in three visits",Administration
+"My hostel allotment letter has the wrong room number printed on it",Administration
+"A senior corners me every day after class and makes comments that scare me",Safety
+"Someone has been messaging me from an unknown number saying they know my class schedule",Safety
+"A group of students surrounded me and wouldn't let me leave until I agreed to something",Safety
+"I was shoved into a wall by another student and no one stepped in",Safety
+"My roommate reads my messages without asking and then brings them up to embarrass me",Student-related
+"A group in my class talks about me loudly enough that I can hear it",Student-related
+"My lab partner takes credit for work I did alone",Student-related
+"Two students in my hostel wing keep playing loud music past midnight despite requests to stop",Student-related
+"Is there a way to know which club room is free this afternoon?",Other
+"What's the procedure if I want to change my elective next semester?",Other
+"Can someone tell me where the nearest printing shop outside campus is?",Other

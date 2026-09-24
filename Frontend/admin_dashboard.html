@@ -1,0 +1,1743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campus Assist – Staff dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* Tokens are identical to the chat frontend (index.html) */
+  :root {
+    color-scheme: light;
+    --plum: #601D49;
+    --rose: #BD5579;
+    --blush: #EA9D9D;
+    --cream: #FFEBB8;
+    --bg: #FAF6EE;
+    --surface: #FFFFFF;
+    --text: #2A1420;
+    --text-soft: #7A5A6C;
+    --border: #EADCC8;
+    --restricted-bg: #F3ECEF;
+    --restricted-border: #D8C3CC;
+    --heading: var(--plum);
+    --danger: #B23A3A;
+  }
+
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --plum: #A9527E;
+    --rose: #D9799A;
+    --blush: #EA9D9D;
+    --cream: #FFEBB8;
+    --bg: #331D2C;
+    --surface: #3F2E3E;
+    --text: #F3E9EE;
+    --text-soft: #A78295;
+    --border: #4E3A48;
+    --restricted-bg: #3A2A34;
+    --restricted-border: #5A4552;
+    --heading: var(--blush);
+    --danger: #F0A0A0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --plum: #A9527E;
+      --rose: #D9799A;
+      --blush: #EA9D9D;
+      --cream: #FFEBB8;
+      --bg: #331D2C;
+      --surface: #3F2E3E;
+      --text: #F3E9EE;
+      --text-soft: #A78295;
+      --border: #4E3A48;
+      --restricted-bg: #3A2A34;
+      --restricted-border: #5A4552;
+      --heading: var(--blush);
+      --danger: #F0A0A0;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Poppins', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+
+  /* ---------- Header (same as chat) ---------- */
+  header {
+    padding: 20px 24px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brand { display: flex; align-items: center; gap: 10px; }
+
+  .brand-mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--plum), var(--rose));
+    flex-shrink: 0;
+  }
+
+  .brand-text h1 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .brand-text p { margin: 0; font-size: 12px; color: var(--text-soft); }
+
+  .header-actions { display: flex; align-items: center; gap: 14px; }
+
+  .theme-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .theme-label { font-size: 10.5px; color: var(--text-soft); line-height: 1; }
+
+  .signout {
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-soft);
+    cursor: pointer;
+  }
+  .signout:hover { color: var(--rose); }
+  .signout:focus-visible { outline: 2px solid var(--rose); outline-offset: 2px; }
+
+  .login-screen { flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px 16px 64px; }
+  .login-card { width: 100%; max-width: 380px; padding: 24px; display: flex; flex-direction: column; gap: 8px; }
+  .login-title { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
+  .login-card label { margin-top: 6px; font-size: 12px; font-weight: 500; color: var(--text-soft); }
+  .login-card .btn { margin-top: 10px; }
+
+  .nav-link {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-soft);
+    text-decoration: none;
+  }
+  .nav-link:hover { color: var(--rose); }
+
+  .theme-toggle {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease;
+  }
+  .theme-toggle:active { transform: scale(0.92); }
+
+  /* ---------- Layout ---------- */
+  main {
+    flex: 1;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 16px 64px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .page-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .sub { margin: 2px 0 0; font-size: 13px; color: var(--text-soft); }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+  }
+
+  /* ---------- Form controls ---------- */
+  select,
+  input[type="text"],
+  input[type="password"] {
+    width: 100%;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 9px 10px;
+    font-family: inherit;
+    font-size: 13.5px;
+    outline: none;
+  }
+
+  select:focus,
+  input[type="text"]:focus,
+  input[type="password"]:focus {
+    border-color: var(--rose);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--rose) 22%, transparent);
+  }
+
+  .btn {
+    border: none;
+    border-radius: 10px;
+    padding: 9px 16px;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--plum);
+    color: white;
+    transition: transform 0.1s ease, background 0.15s ease;
+  }
+  .btn:hover:not(:disabled) { background: var(--rose); }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.5; cursor: default; }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    background: transparent;
+    border-color: var(--rose);
+    color: var(--rose);
+  }
+
+  .btn:focus-visible,
+  .theme-toggle:focus-visible,
+  .nav-link:focus-visible,
+  .desc:focus-visible,
+  select:focus-visible {
+    outline: 2px solid var(--rose);
+    outline-offset: 2px;
+  }
+
+  /* ---------- Filters ---------- */
+  .filters {
+    padding: 16px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+    gap: 12px;
+    align-items: end;
+  }
+
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-soft);
+    margin-bottom: 6px;
+  }
+
+  .filter-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* ---------- Queue table ---------- */
+  .table-scroll { overflow-x: auto; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+
+  th {
+    text-align: left;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-soft);
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+
+  .cell-complaint { width: 38%; min-width: 260px; }
+
+  .desc {
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .desc.open { display: block; }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 8px; }
+
+  .tag {
+    font-size: 12px;
+    color: var(--text-soft);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 1px 10px;
+  }
+
+  .issue { font-size: 12px; color: var(--text-soft); }
+
+  .priority-pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+    white-space: nowrap;
+  }
+  .priority-low { background: #8FAE8B; }
+  .priority-medium { background: #D9A441; }
+  .priority-high { background: #D9714A; }
+  .priority-critical { background: #B23A3A; }
+
+  .status-select { width: auto; min-width: 132px; font-weight: 500; }
+  .status-select.s-review {
+    background: color-mix(in srgb, var(--rose) 14%, var(--surface));
+    border-color: var(--rose);
+  }
+  .status-select.s-resolved {
+    background: color-mix(in srgb, #8FAE8B 22%, var(--surface));
+    border-color: #8FAE8B;
+  }
+
+  .bulk-row td { background: color-mix(in srgb, var(--rose) 8%, var(--surface)); }
+  .bulk { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .bulk-actions { display: flex; gap: 8px; }
+
+  .state {
+    padding: 44px 20px;
+    text-align: center;
+    color: var(--text-soft);
+    font-size: 14px;
+  }
+  .state .btn { margin-top: 12px; }
+
+  .typing { display: flex; gap: 4px; padding: 14px 16px; justify-content: center; }
+  .typing span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-soft);
+    animation: bounce 1.1s infinite ease-in-out;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.15s; }
+  .typing span:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    30% { transform: translateY(-4px); opacity: 1; }
+  }
+
+  .error-note { color: var(--danger); font-size: 13.5px; }
+
+  /* ---------- Restricted queue (same tokens as the chat's restricted card) ---------- */
+  .restricted-panel {
+    background: var(--restricted-bg);
+    border: 1px solid var(--restricted-border);
+    border-radius: 14px;
+    padding: 18px;
+  }
+
+  .restricted-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .restricted-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--heading);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .restricted-note {
+    color: var(--text-soft);
+    font-size: 13.5px;
+    line-height: 1.5;
+    margin: 6px 0 0;
+  }
+
+  .signin-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .restricted-panel .signin-row input { background: var(--surface); }
+  .signin-error { margin-top: 8px; min-height: 1em; }
+
+  .restricted-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+
+  .r-card {
+    background: var(--surface);
+    border: 1px solid var(--restricted-border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    font-size: 14px;
+  }
+
+  .r-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+
+  .r-text { line-height: 1.55; margin: 0; }
+
+  .r-meta {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    row-gap: 4px;
+    column-gap: 14px;
+    margin: 12px 0 0;
+    font-size: 13.5px;
+  }
+  .r-meta dt { color: var(--text-soft); font-weight: 500; }
+  .r-meta dd { margin: 0; font-weight: 500; }
+
+  /* ---------- Tabs ---------- */
+  [hidden] { display: none !important; }
+
+  .tabs { display: flex; gap: 8px; }
+
+  .tab {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-soft);
+    border-radius: 100px;
+    padding: 7px 18px;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .tab:hover { border-color: var(--rose); color: var(--rose); }
+  .tab[aria-selected="true"] { background: var(--plum); border-color: var(--plum); color: white; }
+  .tab:focus-visible { outline: 2px solid var(--rose); outline-offset: 2px; }
+
+  .tabpanel { display: flex; flex-direction: column; gap: 18px; }
+
+  /* ---------- Analytics ---------- */
+  .an-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .an-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+  .kpi { padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .kpi-value { font-size: 24px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.2; color: var(--heading); overflow-wrap: anywhere; }
+  .kpi-label { margin-top: 4px; font-size: 12px; color: var(--text-soft); }
+
+  .an-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  .an-card { padding: 16px 18px 18px; min-width: 0; }
+  .an-card.wide { grid-column: 1 / -1; }
+  .an-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+  .an-card-head h3 { margin: 0; font-size: 14px; font-weight: 600; color: var(--heading); }
+  .an-card .state { padding: 20px 0; }
+
+  .btn-small { padding: 5px 12px; font-size: 12px; }
+  .an-card-tools { display: flex; align-items: center; gap: 8px; }
+  .an-card-tools select { width: auto; padding: 5px 10px; font-size: 12px; }
+
+  .bars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .bar-row { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) auto; align-items: center; gap: 12px; font-size: 13.5px; }
+  .bar-name { display: block; overflow-wrap: anywhere; }
+  .bar-sub { display: block; font-size: 12px; color: var(--text-soft); }
+  .bar-track { height: 8px; border-radius: 100px; background: var(--bg); border: 1px solid var(--border); overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--plum), var(--rose)); }
+  .bar-value { font-weight: 600; text-align: right; white-space: nowrap; }
+  .more-note { margin: 12px 0 0; font-size: 12px; color: var(--text-soft); }
+
+  /* Donut and rings */
+  .donut-wrap { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+  .donut { width: 168px; height: 168px; flex-shrink: 0; }
+  .donut circle, .ring circle { fill: none; }
+  .donut circle { stroke-width: 6; }
+  .donut .donut-track, .ring .ring-track { stroke: var(--border); }
+  .donut-total { font-size: 7px; font-weight: 600; fill: var(--text); font-family: 'Poppins', sans-serif; }
+  .donut-caption { font-size: 2.8px; fill: var(--text-soft); font-family: 'Poppins', sans-serif; }
+  .legend { list-style: none; margin: 0; padding: 0; flex: 1 1 170px; min-width: 0; display: flex; flex-direction: column; gap: 8px; font-size: 13.5px; }
+  .legend li { display: flex; align-items: center; gap: 8px; }
+  .swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .legend-name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .legend-val { color: var(--text-soft); font-size: 12.5px; white-space: nowrap; }
+
+  .ring { width: 52px; height: 52px; flex-shrink: 0; }
+  .ring circle { stroke-width: 5; }
+  .ring .ring-arc { stroke: var(--rose); }
+  .ring-text { font-size: 9px; font-weight: 600; fill: var(--text); font-family: 'Poppins', sans-serif; }
+
+  /* Line chart: dots, gridlines and x labels share one percentage grid, so they always line up */
+  .line-body { display: grid; grid-template-columns: 34px minmax(0, 1fr); padding-top: 24px; }
+  .y-axis, .line-plot { position: relative; height: 180px; }
+  .y-label { position: absolute; right: 8px; transform: translateY(50%); font-size: 11px; color: var(--text-soft); line-height: 1; }
+  .grid-line { position: absolute; left: 0; right: 0; height: 0; border-top: 1px solid var(--border); }
+  .line-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .line-area { fill: color-mix(in srgb, var(--rose) 16%, transparent); stroke: none; }
+  .line-path { fill: none; stroke: var(--rose); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+  .dot { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: var(--rose); border: 2px solid var(--surface); transform: translate(-50%, 50%); }
+  .dot-val { position: absolute; transform: translateX(-50%); font-size: 11px; font-weight: 600; line-height: 1; white-space: nowrap; }
+  .x-labels { display: grid; margin: 8px 0 0 34px; }
+  .x-label { text-align: center; font-size: 12px; color: var(--text-soft); overflow-wrap: anywhere; }
+
+  /* Column chart */
+  .cols { display: grid; gap: 10px; align-items: end; }
+  .col-cell { min-width: 0; }
+  .col-val { text-align: center; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .col-plot { height: 150px; display: flex; align-items: flex-end; justify-content: center; border-bottom: 1px solid var(--border); }
+  .col-bar { width: min(100%, 44px); border-radius: 6px 6px 0 0; background: linear-gradient(180deg, var(--rose), var(--plum)); }
+  .col-label { margin-top: 8px; text-align: center; font-size: 12.5px; overflow-wrap: anywhere; }
+  .col-sub { margin-top: 2px; text-align: center; font-size: 11.5px; color: var(--text-soft); }
+
+  .raw {
+    margin: 8px 0 0;
+    padding: 10px;
+    max-height: 220px;
+    overflow: auto;
+    font-size: 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+
+  .print-head { display: none; }
+
+  /* ---------- Locations ---------- */
+  .loc-tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .select-auto { width: auto; }
+  .loc-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .loc-row:last-child { border-bottom: none; }
+  .loc-name { font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }
+  .loc-meta { margin-top: 2px; font-size: 12px; color: var(--text-soft); }
+  .loc-actions { display: flex; align-items: center; gap: 10px; }
+  .badge {
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 100px;
+    padding: 2px 10px;
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+  }
+  .badge.pending { border-color: var(--rose); color: var(--rose); }
+  .badge.verified { border-color: #8FAE8B; color: color-mix(in srgb, #8FAE8B 65%, var(--text)); }
+
+  @media (max-width: 900px) {
+    .an-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- Toast ---------- */
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(24px + env(safe-area-inset-bottom));
+    transform: translate(-50%, 12px);
+    opacity: 0;
+    pointer-events: none;
+    max-width: calc(100% - 32px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 10px 16px;
+    font-size: 13.5px;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  .toast.error { border-color: var(--danger); color: var(--danger); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 900px) {
+    .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .filter-actions { grid-column: 1 / -1; }
+  }
+
+  @media (max-width: 760px) {
+    header { padding: 16px; }
+    .table-scroll { overflow-x: visible; }
+    table, tbody, tr, td { display: block; }
+    thead { display: none; }
+    tr { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+    tbody tr:last-child { border-bottom: none; }
+    td { padding: 4px 0; border: none; display: flex; justify-content: space-between; gap: 12px; }
+    td::before { content: attr(data-label); color: var(--text-soft); font-size: 12px; flex-shrink: 0; width: 84px; padding-top: 2px; }
+    td.cell-complaint { display: block; width: auto; min-width: 0; padding-bottom: 8px; }
+    td.cell-complaint::before { display: none; }
+    .bulk-row td { display: block; }
+    .bulk-row td::before { display: none; }
+    .signin-row { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 520px) {
+    .filters { grid-template-columns: 1fr; }
+    .nav-link { display: none; }
+  }
+
+  @media print {
+    :root, :root[data-theme="dark"], :root:not([data-theme="light"]) {
+      color-scheme: light;
+      --plum: #601D49; --rose: #BD5579; --blush: #EA9D9D; --cream: #FFEBB8;
+      --bg: #FFFFFF; --surface: #FFFFFF; --text: #2A1420; --text-soft: #7A5A6C; --border: #EADCC8;
+      --heading: #601D49; --danger: #B23A3A;
+    }
+    body { background: #fff; min-height: 0; }
+    header, .login-screen, .tabs, .filters, .restricted-panel, .an-actions, .csv-btn, .no-print, .toast, .bulk-row { display: none !important; }
+    main { max-width: none; padding: 0; }
+    .print-head { display: block; }
+    .print-head h1 { margin: 0 0 4px; font-size: 20px; font-weight: 600; color: var(--plum); }
+    .print-head p { margin: 0 0 12px; font-size: 12px; color: var(--text-soft); }
+    .panel, .an-card, tr { break-inside: avoid; }
+    .bar-fill, .col-bar, .swatch, .dot, .line-area, .line-path, .donut circle, .ring circle { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-mark" aria-hidden="true"></div>
+    <div class="brand-text">
+      <h1>Campus Assist</h1>
+      <p>Staff dashboard</p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <a class="nav-link" href="index.html">Student chat</a>
+    <button class="signout" id="signOutBtn" type="button" hidden>Sign out</button>
+    <div class="theme-wrap">
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch theme"></button>
+    </div>
+  </div>
+</header>
+
+<div class="login-screen" id="loginScreen" hidden>
+  <form class="login-card panel" id="loginForm">
+    <h2 class="login-title">Staff sign-in</h2>
+    <p class="sub">This dashboard is for authorised staff only.</p>
+    <label for="loginUser">Username</label>
+    <input id="loginUser" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+    <label for="loginPass">Password</label>
+    <input id="loginPass" type="password" autocomplete="current-password" required>
+    <div class="error-note signin-error" id="loginError" role="alert"></div>
+    <button class="btn" id="loginBtn" type="submit">Sign in</button>
+  </form>
+</div>
+
+<main hidden>
+  <div class="tabs" role="tablist" aria-label="Dashboard sections">
+    <button class="tab" id="tabBtn-complaints" role="tab" aria-selected="true" aria-controls="tab-complaints" type="button">Complaints</button>
+    <button class="tab" id="tabBtn-analytics" role="tab" aria-selected="false" aria-controls="tab-analytics" tabindex="-1" type="button">Analytics</button>
+    <button class="tab" id="tabBtn-locations" role="tab" aria-selected="false" aria-controls="tab-locations" tabindex="-1" type="button">Locations</button>
+  </div>
+
+  <div class="tabpanel" id="tab-complaints" role="tabpanel" aria-labelledby="tabBtn-complaints">
+  <section>
+    <h2 class="page-title">Complaint queue</h2>
+    <p class="sub" id="count" aria-live="polite">Loading…</p>
+  </section>
+
+  <section class="panel filters" aria-label="Filters">
+    <div class="field">
+      <label for="fDept">Department</label>
+      <select id="fDept"><option value="">All departments</option></select>
+    </div>
+    <div class="field">
+      <label for="fCategory">Category</label>
+      <select id="fCategory">
+        <option value="">All categories</option>
+        <option>Infrastructure</option>
+        <option>Infrastructure Hazard</option>
+        <option>Academic</option>
+        <option>Faculty</option>
+        <option>Student-related</option>
+        <option>Canteen</option>
+        <option>Administration</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="fPriority">Priority</label>
+      <select id="fPriority">
+        <option value="">All priorities</option>
+        <option>Critical</option>
+        <option>High</option>
+        <option>Medium</option>
+        <option>Low</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="fStatus">Status</label>
+      <select id="fStatus">
+        <option value="">All statuses</option>
+        <option>Pending</option>
+        <option>Under Review</option>
+        <option>Resolved</option>
+      </select>
+    </div>
+    <div class="filter-actions">
+      <button class="btn btn-ghost" id="clearBtn" type="button">Clear filters</button>
+      <button class="btn btn-ghost" id="refreshBtn" type="button">Refresh</button>
+      <button class="btn btn-ghost" id="exportBtn" type="button" title="Downloads the complaints currently shown">Export CSV</button>
+    </div>
+  </section>
+
+  <section class="panel" id="queue" aria-label="Complaint queue"></section>
+
+  <section class="restricted-panel" aria-label="Confidential queue">
+    <div class="restricted-head">
+      <div>
+        <h2 class="restricted-title"><span aria-hidden="true">🔒</span> Confidential queue</h2>
+      </div>
+      <div id="restrictedTools"></div>
+    </div>
+    <div id="restrictedBody"></div>
+  </section>
+  </div>
+
+  <div class="tabpanel" id="tab-analytics" role="tabpanel" aria-labelledby="tabBtn-analytics" hidden>
+    <div class="print-head">
+      <h1>Campus Assist: grievance analytics report</h1>
+      <p>Generated <span id="printDate"></span></p>
+    </div>
+    <section class="an-head">
+      <div>
+        <h2 class="page-title">Campus analytics</h2>
+        <p class="sub" id="anSub" aria-live="polite">Loading…</p>
+      </div>
+      <div class="an-actions">
+        <button class="btn btn-ghost" id="anRefresh" type="button">Refresh</button>
+        <button class="btn" id="reportBtn" type="button" title="Opens the print dialog. Choose Save as PDF.">Download report (PDF)</button>
+      </div>
+    </section>
+    <section class="kpis" id="kpis" aria-label="Key figures"></section>
+    <section class="an-grid" id="anGrid"></section>
+  </div>
+
+  <div class="tabpanel" id="tab-locations" role="tabpanel" aria-labelledby="tabBtn-locations" hidden>
+    <section class="an-head">
+      <div>
+        <h2 class="page-title">Locations</h2>
+        <p class="sub" id="locSub" aria-live="polite">Loading…</p>
+      </div>
+      <div class="loc-tools no-print">
+        <select id="locFilter" class="select-auto" aria-label="Show locations">
+          <option value="pending">Needs verification</option>
+          <option value="all">All locations</option>
+          <option value="verified">Verified</option>
+        </select>
+        <button class="btn btn-ghost" id="locRefresh" type="button">Refresh</button>
+      </div>
+    </section>
+    <p class="sub">Locations are created from students' complaints. Verify a location once you've confirmed it is a real place on campus.</p>
+    <section class="panel" id="locList" aria-label="Locations"></section>
+  </div>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  const API = 'http://127.0.0.1:8000';
+  const STATUSES = ['Pending', 'Under Review', 'Resolved'];
+  const PRIORITY_RANK = { Critical: 0, High: 1, Medium: 2, Low: 3 };
+  const $ = (id) => document.getElementById(id);
+
+  let staffAuth = null; // Authorization header for /api/restricted*, kept in memory only
+  let dashAuth = null;  // Authorization header for everything else, kept for this browser tab only
+  try { dashAuth = sessionStorage.getItem('dashAuth'); } catch (_) {}
+  function setDashAuth(v) {
+    dashAuth = v;
+    try { if (v) sessionStorage.setItem('dashAuth', v); else sessionStorage.removeItem('dashAuth'); } catch (_) {}
+  }
+  let loadToken = 0;    // ignores stale responses when filters change quickly
+  let currentList = []; // complaints currently on screen, used by Export CSV
+  let analyticsLoaded = false;
+  let analyticsToken = 0;
+  let trendWeeks = 8;
+
+  /* ---------- Small helpers ---------- */
+  function el(tag, attrs, ...kids) {
+    const n = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (v == null || v === false) continue;
+      if (k === 'class') n.className = v;
+      else if (k === 'text') n.textContent = v;
+      else n.setAttribute(k, v === true ? '' : v);
+    }
+    kids.flat().forEach((k) => { if (k != null) n.append(k); });
+    return n;
+  }
+
+  /* auth: true sends the confidential-queue credential, otherwise the dashboard credential.
+     quiet: a 401 doesn't send the person back to the sign-in screen (used by the sign-in check itself). */
+  async function api(path, { method = 'GET', body, auth = false, quiet = false } = {}) {
+    const headers = {};
+    if (body) headers['Content-Type'] = 'application/json';
+    const credential = auth ? staffAuth : dashAuth;
+    if (credential) headers['Authorization'] = credential;
+    const res = await fetch(API + path, {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    if (!res.ok) {
+      if (res.status === 401 && !auth && !quiet) lockDashboard('Your session has ended. Sign in again.');
+      let detail = '';
+      try {
+        const j = await res.json();
+        if (typeof j.detail === 'string') detail = j.detail;
+        else if (Array.isArray(j.detail)) detail = j.detail.map((d) => (d.loc || []).join('.') + ': ' + d.msg).join('; ');
+      } catch (_) {}
+      const err = new Error(detail || 'Request failed (' + res.status + ')');
+      err.status = res.status;
+      throw err;
+    }
+    return res.json();
+  }
+
+  const asList = (d) => Array.isArray(d) ? d : (d && (d.complaints || d.items || d.results || d.locations)) || [];
+
+  /* A failed fetch is a TypeError whether the server is down, the page was opened from disk, or CORS blocked it.
+     A no-cors probe tells those apart: it only fails when nothing is listening. */
+  async function friendlyError(e) {
+    if (!((e && e.name === 'TypeError'))) return e.message;
+    if (location.protocol === 'file:') {
+      return 'This page was opened straight from a file, so the browser blocks calls to the backend. In the frontend folder run "python -m http.server 5500", then open http://127.0.0.1:5500/admin_dashboard.html';
+    }
+    try {
+      await fetch(API + '/openapi.json', { mode: 'no-cors' });
+    } catch (_) {
+      return "Can't reach the backend at 127.0.0.1:8000. Start uvicorn from the Backend folder and check its terminal for errors.";
+    }
+    return 'The backend is running, but the browser blocked the request. Usual causes: CORS (allowed origins must include ' + location.origin + ' and allowed methods must include GET, POST and PATCH), or a server error, which browsers report the same way. In the uvicorn terminal, "OPTIONS ... 400" means CORS and "... 500" means a server error.';
+  }
+
+  /* Field accessors tolerate a few shapes of the backend's serialized complaint */
+  const deptOf = (c) => (c.department && typeof c.department === 'object') ? (c.department.name || '') : (c.department || c.department_name || '');
+  const idOf = (c) => c.id ?? c.complaint_id ?? c.complaintId;
+  const issueOf = (c) => c.issue || c.issue_tag || c.issue_type || '';
+  function locOf(c) {
+    const l = c.location;
+    if (l && typeof l === 'object') return l.name || l.label || [l.building, l.floor, l.area, l.specific].filter(Boolean).join(', ');
+    return l || c.location_name || c.location_label || '';
+  }
+  function fmtDate(v) {
+    const t = Date.parse(v);
+    return t ? new Date(t).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+  }
+
+  let toastTimer;
+  function toast(msg, isError) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.toggle('error', !!isError);
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  /* ---------- Theme (same data-theme mechanism as the chat page) ---------- */
+  const root = document.documentElement;
+  const isDark = () => root.dataset.theme
+    ? root.dataset.theme === 'dark'
+    : !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  function paintToggle() {
+    $('themeToggle').textContent = isDark() ? '☀️' : '🌙';
+    $('themeToggle').setAttribute('aria-label', isDark() ? 'Switch to light mode' : 'Switch to dark mode');
+  }
+  try {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'light' || saved === 'dark') root.dataset.theme = saved;
+  } catch (_) {}
+  $('themeToggle').addEventListener('click', () => {
+    root.dataset.theme = isDark() ? 'light' : 'dark';
+    try { localStorage.setItem('theme', root.dataset.theme); } catch (_) {}
+    paintToggle();
+  });
+  paintToggle();
+
+  /* ---------- Shared components ---------- */
+  function priorityPill(p) {
+    return el('span', { class: 'priority-pill priority-' + String(p || '').toLowerCase(), text: p || '—' });
+  }
+
+  function paintStatus(sel, status) {
+    sel.classList.remove('s-review', 's-resolved');
+    if (status === 'Under Review') sel.classList.add('s-review');
+    if (status === 'Resolved') sel.classList.add('s-resolved');
+  }
+
+  const RANK = { 'Pending': 0, 'Under Review': 1, 'Resolved': 2 };
+
+  /* The status is sent in the query string and in a JSON body, so it works whichever way the route declares it */
+  function patchStatus(id, status, restricted) {
+    const base = restricted ? '/api/restricted/' : '/api/complaints/';
+    return api(base + encodeURIComponent(id) + '/status?status=' + encodeURIComponent(status),
+      { method: 'PATCH', body: { status }, auth: restricted });
+  }
+
+  function statusSelect(c, restricted, onChanged) {
+    const current = STATUSES.includes(c.status) ? c.status : 'Pending';
+    const sel = el('select', { class: 'status-select', 'aria-label': 'Status' });
+    STATUSES.forEach((s) => sel.append(new Option(s, s, false, s === current)));
+    sel.value = current;
+    paintStatus(sel, current);
+
+    sel.addEventListener('change', async () => {
+      const prev = c.status && STATUSES.includes(c.status) ? c.status : 'Pending';
+      const next = sel.value;
+      const id = idOf(c);
+      if (id == null) {
+        sel.value = prev;
+        toast("This complaint has no id in the API response, so it can't be updated.", true);
+        return;
+      }
+      sel.disabled = true;
+      try {
+        await patchStatus(id, next, restricted);
+        c.status = next;
+        paintStatus(sel, next);
+        toast('Status updated');
+        analyticsLoaded = false; // resolution figures changed, reload them next time the tab opens
+        if (onChanged) onChanged(next);
+      } catch (e) {
+        sel.value = prev;
+        if (restricted && e.status === 401) {
+          signOut('Your session expired. Sign in again.');
+        } else if ((e && e.name === 'TypeError')) {
+          toast(await friendlyError(e), true);
+        } else {
+          toast("Couldn't update status: " + e.message, true);
+        }
+      } finally {
+        sel.disabled = false;
+      }
+    });
+    return sel;
+  }
+
+  /* ---------- General queue ---------- */
+  const deptNames = new Set();
+  function addDepartments(names) {
+    let changed = false;
+    names.forEach((n) => { if (n && !deptNames.has(n)) { deptNames.add(n); changed = true; } });
+    if (!changed) return;
+    const sel = $('fDept');
+    const keep = sel.value;
+    sel.replaceChildren(new Option('All departments', ''));
+    [...deptNames].sort().forEach((n) => sel.append(new Option(n, n)));
+    sel.value = keep;
+  }
+
+  async function loadDepartments() {
+    try {
+      const data = await api('/api/analytics/resolution-by-department');
+      const arr = Array.isArray(data) ? data : (data && (data.departments || data.items)) || [];
+      addDepartments(arr.map((d) => (typeof d === 'string' ? d : d.department || d.name || d.department_name)));
+    } catch (_) { /* the filter also fills from loaded complaints */ }
+  }
+
+  const FILTERS = [['department', 'fDept'], ['category', 'fCategory'], ['priority', 'fPriority'], ['status', 'fStatus']];
+  const activeFilters = () => FILTERS.filter(([, id]) => $(id).value);
+
+  function showState(node) { $('queue').replaceChildren(node); }
+
+  const rowSelects = new Map(); // id -> { c, sel } for rows currently on screen
+
+  /* Same issue at the same place for the same department. Generic "General ..." tags are too vague to group on. */
+  function similarKey(c) {
+    const issue = String(issueOf(c) || '').trim().toLowerCase();
+    const loc = String(locOf(c) || '').trim().toLowerCase();
+    if (!issue || !loc || issue.startsWith('general ')) return null;
+    return [issue, loc, String(deptOf(c) || '').trim().toLowerCase()].join('|');
+  }
+
+  async function offerSimilar(c, target, tr) {
+    try {
+      document.querySelectorAll('.bulk-row').forEach((r) => r.remove());
+      const key = similarKey(c);
+      if (!key || !RANK[target]) return;
+      const everything = asList(await api('/api/complaints')); // fresh and unfiltered, so filters can't hide matches
+      const others = everything.filter((o) =>
+        idOf(o) !== idOf(c) && similarKey(o) === key && (RANK[o.status] ?? 0) < RANK[target]);
+      if (!others.length) return;
+
+      const n = others.length;
+      const applyBtn = el('button', { class: 'btn', type: 'button', text: n === 1 ? 'Mark it ' + target : 'Mark all ' + n + ' ' + target });
+      const skipBtn = el('button', { class: 'btn btn-ghost', type: 'button', text: 'Leave as is' });
+      const row = el('tr', { class: 'bulk-row' },
+        el('td', { colspan: '6' }, el('div', { class: 'bulk' },
+          el('span', { text: n + (n === 1 ? ' other open complaint reports ' : ' other open complaints report ') + issueOf(c) + ' at ' + locOf(c) + '. Mark ' + (n === 1 ? 'it ' : 'them ') + target + ' too?' }),
+          el('div', { class: 'bulk-actions' }, applyBtn, skipBtn))));
+      tr.after(row);
+
+      skipBtn.addEventListener('click', () => row.remove());
+      applyBtn.addEventListener('click', async () => {
+        applyBtn.disabled = true;
+        skipBtn.disabled = true;
+        const results = await Promise.allSettled(others.map((o) => patchStatus(idOf(o), target, false)));
+        let done = 0;
+        results.forEach((r, i) => {
+          if (r.status !== 'fulfilled') return;
+          done++;
+          const shown = rowSelects.get(idOf(others[i]));
+          if (shown) { shown.c.status = target; shown.sel.value = target; paintStatus(shown.sel, target); }
+        });
+        row.remove();
+        if (done) analyticsLoaded = false;
+        const failed = n - done;
+        toast(failed ? done + ' updated, ' + failed + ' failed' : done + (done === 1 ? ' complaint' : ' complaints') + ' marked ' + target, failed > 0);
+      });
+    } catch (_) { /* the follow-up is optional; the main update already succeeded */ }
+  }
+
+  function complaintRow(c) {
+    const desc = el('div', {
+      class: 'desc', tabindex: '0', role: 'button', 'aria-expanded': 'false',
+      title: 'Show full text', text: c.description || '',
+    });
+    const toggle = () => desc.setAttribute('aria-expanded', String(desc.classList.toggle('open')));
+    desc.addEventListener('click', toggle);
+    desc.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+
+    const tags = el('div', { class: 'tags' },
+      c.category ? el('span', { class: 'tag', text: c.category }) : null,
+      issueOf(c) ? el('span', { class: 'issue', text: issueOf(c) }) : null);
+
+    const tr = el('tr');
+    const sel = statusSelect(c, false, (next) => offerSimilar(c, next, tr));
+    rowSelects.set(idOf(c), { c, sel });
+    tr.append(
+      el('td', { class: 'cell-complaint' }, desc, tags),
+      el('td', { 'data-label': 'Location', text: locOf(c) || 'Not specified' }),
+      el('td', { 'data-label': 'Department', text: deptOf(c) || 'Unassigned' }),
+      el('td', { 'data-label': 'Priority' }, priorityPill(c.priority)),
+      el('td', { 'data-label': 'Status' }, sel),
+      el('td', { 'data-label': 'Received', text: fmtDate(c.created_at) }));
+    return tr;
+  }
+
+  function renderQueue(list) {
+    const n = list.length;
+    rowSelects.clear();
+    const filtered = activeFilters().length > 0;
+    $('count').textContent = n + (n === 1 ? ' complaint' : ' complaints') + (filtered ? (n === 1 ? ' matches the filters' : ' match the filters') : '');
+    if (!n) {
+      const clear = el('button', { class: 'btn btn-ghost', type: 'button', text: 'Clear filters' });
+      clear.addEventListener('click', clearFilters);
+      showState(el('div', { class: 'state' },
+        el('div', { text: activeFilters().length ? 'No complaints match these filters.' : 'No complaints yet.' }),
+        activeFilters().length ? clear : null));
+      return;
+    }
+    const head = el('tr', {}, ...['Complaint', 'Location', 'Department', 'Priority', 'Status', 'Received'].map((h) => el('th', { scope: 'col', text: h })));
+    const table = el('table', {}, el('thead', {}, head), el('tbody', {}, list.map(complaintRow)));
+    showState(el('div', { class: 'table-scroll' }, table));
+  }
+
+  async function loadComplaints() {
+    const token = ++loadToken;
+    const params = new URLSearchParams();
+    activeFilters().forEach(([key, id]) => params.set(key, $(id).value));
+    showState(el('div', { class: 'typing', 'aria-label': 'Loading' }, el('span'), el('span'), el('span')));
+    try {
+      const data = await api('/api/complaints' + (params.toString() ? '?' + params.toString() : ''));
+      if (token !== loadToken || isLocked()) return;
+      const list = asList(data).slice();
+      list.sort((a, b) =>
+        (PRIORITY_RANK[a.priority] ?? 9) - (PRIORITY_RANK[b.priority] ?? 9) ||
+        (Date.parse(b.created_at) || 0) - (Date.parse(a.created_at) || 0));
+      addDepartments(list.map(deptOf));
+      currentList = list;
+      renderQueue(list);
+    } catch (e) {
+      if (token !== loadToken) return;
+      const message = await friendlyError(e);
+      if (token !== loadToken) return;
+      $('count').textContent = '';
+      const retry = el('button', { class: 'btn btn-ghost', type: 'button', text: 'Try again' });
+      retry.addEventListener('click', loadComplaints);
+      showState(el('div', { class: 'state' }, el('div', { class: 'error-note', text: message }), retry));
+    }
+  }
+
+  function clearFilters() {
+    FILTERS.forEach(([, id]) => { $(id).value = ''; });
+    loadComplaints();
+  }
+
+  /* ---------- Confidential queue ---------- */
+  function basicHeader(user, pass) {
+    const bytes = new TextEncoder().encode(user + ':' + pass);
+    return 'Basic ' + btoa(String.fromCharCode(...bytes));
+  }
+
+  function showSignIn(message) {
+    $('restrictedTools').replaceChildren();
+    const user = el('input', { type: 'text', placeholder: 'Staff username', 'aria-label': 'Staff username', autocomplete: 'username', autocapitalize: 'none', autocorrect: 'off', spellcheck: 'false', required: true });
+    const pass = el('input', { type: 'password', placeholder: 'Password', 'aria-label': 'Password', autocomplete: 'current-password', required: true });
+    const btn = el('button', { class: 'btn', type: 'submit', text: 'Sign in' });
+    const err = el('div', { class: 'error-note signin-error', role: 'alert', text: message || '' });
+    const form = el('form', { class: 'signin-row' }, user, pass, btn);
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      btn.disabled = true;
+      err.textContent = '';
+      staffAuth = basicHeader(user.value.trim(), pass.value);
+      try {
+        showRestricted(asList(await api('/api/restricted', { auth: true })));
+      } catch (ex) {
+        staffAuth = null;
+        err.textContent = ex.status === 401 ? 'The backend rejected these credentials (401).' : await friendlyError(ex);
+        btn.disabled = false;
+      }
+    });
+    $('restrictedBody').replaceChildren(
+      el('p', { class: 'restricted-note', text: 'Harassment, threats and other safety reports stay out of the main queue. Sign in with the staff account to view them.' }),
+      form, err);
+  }
+
+  function restrictedCard(c) {
+    const reason = Array.isArray(c.restricted_reason) ? c.restricted_reason.join(', ') : c.restricted_reason;
+    return el('div', { class: 'r-card' },
+      el('div', { class: 'r-top' }, priorityPill(c.priority), statusSelect(c, true)),
+      el('p', { class: 'r-text', text: c.description || '' }),
+      el('dl', { class: 'r-meta' },
+        reason ? el('dt', { text: 'Flagged as' }) : null, reason ? el('dd', { text: reason }) : null,
+        el('dt', { text: 'Department' }), el('dd', { text: deptOf(c) || 'Unassigned' }),
+        el('dt', { text: 'Received' }), el('dd', { text: fmtDate(c.created_at) })));
+  }
+
+  function showRestricted(list) {
+    if (isLocked()) return;
+    const sorted = list.slice().sort((a, b) =>
+      (PRIORITY_RANK[a.priority] ?? 9) - (PRIORITY_RANK[b.priority] ?? 9) ||
+      (Date.parse(b.created_at) || 0) - (Date.parse(a.created_at) || 0));
+    const out = el('button', { class: 'btn btn-ghost', type: 'button', text: 'Sign out' });
+    out.addEventListener('click', () => signOut());
+    $('restrictedTools').replaceChildren(out);
+    $('restrictedBody').replaceChildren(
+      el('p', { class: 'restricted-note', text: sorted.length + (sorted.length === 1 ? ' report' : ' reports') + ' visible to signed-in staff only.' }),
+      sorted.length
+        ? el('div', { class: 'restricted-list' }, sorted.map(restrictedCard))
+        : el('p', { class: 'restricted-note', text: 'No confidential reports right now.' }));
+  }
+
+  function signOut(message) {
+    staffAuth = null;
+    showSignIn(message);
+  }
+
+  async function refreshAll() {
+    loadComplaints();
+    if (staffAuth) {
+      try { showRestricted(asList(await api('/api/restricted', { auth: true }))); }
+      catch (e) { if (e.status === 401) signOut('Your session expired. Sign in again.'); else toast(await friendlyError(e), true); }
+    }
+  }
+
+  /* ---------- CSV export ---------- */
+  const today = () => new Date().toISOString().slice(0, 10);
+
+  function csvCell(v) {
+    if (v == null) return '';
+    let str = typeof v === 'object' ? JSON.stringify(v) : String(v);
+    // Complaint text comes from students; stop spreadsheet apps from running it as a formula
+    if (typeof v === 'string' && /^[=+\-@\t\r]/.test(str)) str = "'" + str;
+    return /[",\r\n]/.test(str) ? '"' + str.replace(/"/g, '""') + '"' : str;
+  }
+
+  function downloadCsv(filename, table) {
+    const csv = '\uFEFF' + table.map((r) => r.map(csvCell).join(',')).join('\r\n');
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    const a = el('a', { href: url, download: filename });
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function exportComplaints() {
+    if (!currentList.length) { toast('Nothing to export yet.', true); return; }
+    const head = ['ID', 'Received', 'Category', 'Issue', 'Priority', 'Department', 'Location', 'Status', 'Resolved on', 'Days to resolve', 'Description'];
+    const rows = currentList.map((c) => [idOf(c), c.created_at, c.category, issueOf(c), c.priority, deptOf(c), locOf(c), c.status, c.resolved_at, c.resolution_days, c.description]);
+    downloadCsv('complaints-' + today() + '.csv', [head, ...rows]);
+    const n = currentList.length;
+    toast('Exported ' + n + (n === 1 ? ' complaint' : ' complaints'));
+  }
+
+  /* ---------- Analytics ---------- */
+  const COUNT_HINTS = ['count', 'total', 'complaints', 'complaint_count', 'total_complaints', 'number', 'num', 'value'];
+  const DAYS_HINTS = ['avg_resolution_days', 'avg_days', 'average_days', 'average_resolution_days', 'mean_days', 'avg', 'days'];
+  const LABEL_HINTS = ['category', 'department', 'location', 'issue', 'name', 'label', 'tag', 'period', 'date', 'week', 'month', 'day'];
+
+  const SECTIONS = [
+    { id: 'categories', kind: 'donut', file: 'categories', title: 'Complaints by category', path: '/api/analytics/categories', hints: COUNT_HINTS, labels: ['category'] },
+    { id: 'trends', kind: 'line', file: 'trends', title: 'Complaints over time', path: () => '/api/analytics/trends?weeks=' + trendWeeks, hints: COUNT_HINTS, labels: ['week_label', 'week', 'date', 'period', 'month'] },
+    { id: 'hotspots', kind: 'bars', file: 'hotspots', title: 'Hotspot locations', path: '/api/analytics/hotspots', hints: COUNT_HINTS, labels: ['location'] },
+    { id: 'recurring', kind: 'bars', file: 'recurring-issues', title: 'Recurring issues', path: '/api/analytics/recurring-issues', hints: COUNT_HINTS, labels: ['issue_name', 'issue', 'name', 'tag'] },
+    { id: 'resolution', kind: 'columns', file: 'resolution-by-department', title: 'Average days to resolve, by department', path: '/api/analytics/resolution-by-department', hints: DAYS_HINTS, labels: ['department'], unit: 'days', wide: true },
+  ];
+  const pathOf = (sec) => (typeof sec.path === 'function' ? sec.path() : sec.path);
+  const titleOf = (sec) => (sec.id === 'trends' ? sec.title + ' (last ' + trendWeeks + ' weeks)' : sec.title);
+  const sectionTitle = {};
+  const loadingDots = () => el('div', { class: 'typing', 'aria-label': 'Loading' }, el('span'), el('span'), el('span'));
+  const sectionBody = {};
+  const sectionRows = {};
+
+  const isNum = (v) => (typeof v === 'number' && isFinite(v)) || (typeof v === 'string' && v.trim() !== '' && isFinite(Number(v)));
+  const fmtNum = (n) => (Number.isInteger(n) ? String(n) : String(Math.round(n * 100) / 100));
+  const isIdKey = (k) => /(^|_)id$/i.test(k);
+  function humanize(k) {
+    const t = String(k).replace(/[_-]+/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').trim().toLowerCase();
+    return t.charAt(0).toUpperCase() + t.slice(1);
+  }
+  function labelOf(v) {
+    if (v == null) return '—';
+    if (typeof v === 'object') return v.name || v.label || Object.values(v).filter((x) => x != null && typeof x !== 'object').join(', ') || '—';
+    return String(v);
+  }
+  function pickByHint(keys, hints) {
+    const lower = keys.map((k) => k.toLowerCase());
+    for (const h of hints) { const i = lower.indexOf(h); if (i >= 0) return keys[i]; }
+    for (const h of hints) { const i = lower.findIndex((k) => k.includes(h)); if (i >= 0) return keys[i]; }
+    return null;
+  }
+
+  /* The analytics routes' exact shapes aren't fixed, so find the rows, the label and the number to plot */
+  function toRows(data) {
+    if (Array.isArray(data)) return data.filter((x) => x && typeof x === 'object' && !Array.isArray(x));
+    if (data && typeof data === 'object') {
+      const nested = Object.values(data).find((v) => Array.isArray(v) && v.length && v[0] && typeof v[0] === 'object');
+      if (nested) return toRows(nested);
+      const entries = Object.entries(data);
+      if (entries.length && entries.every(([, v]) => isNum(v))) return entries.map(([k, v]) => ({ label: k, value: Number(v) }));
+    }
+    return [];
+  }
+
+  function shape(rows, hints, labelHints) {
+    if (!rows.length) return null;
+    const keys = [...new Set(rows.flatMap((r) => Object.keys(r)))];
+    const numeric = keys.filter((k) => !isIdKey(k) && rows.some((r) => isNum(r[k])) && rows.every((r) => r[k] == null || isNum(r[k])));
+    const valueKey = pickByHint(numeric, hints) || numeric[0];
+    if (!valueKey) return null;
+    const textual = keys.filter((k) => !numeric.includes(k) && !isIdKey(k) && rows.some((r) => r[k] != null));
+    const labelKey = pickByHint(textual, labelHints || []) || pickByHint(textual, LABEL_HINTS) || textual[0] || numeric.find((k) => k !== valueKey) || null;
+    const subKey = textual.find((k) => k !== labelKey && rows.some((r) => typeof r[k] === 'string' && r[k] !== '')) || null;
+    const extras = numeric.filter((k) => k !== valueKey && k !== labelKey).slice(0, 2);
+    return { rows, valueKey, labelKey, subKey, extras };
+  }
+
+  const pointsOf = (m) => m.rows.map((r) => ({
+    label: m.labelKey ? labelOf(r[m.labelKey]) : '',
+    sub: m.subKey && typeof r[m.subKey] === 'string' ? r[m.subKey] : '',
+    value: isNum(r[m.valueKey]) ? Number(r[m.valueKey]) : null,
+    row: r,
+  }));
+
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const PALETTE = ['var(--plum)', 'var(--rose)', 'var(--blush)', '#D9A441', '#8FAE8B', '#D9714A', '#B08AA3', 'var(--text-soft)'];
+  function svgEl(tag, attrs, text) {
+    const n = document.createElementNS(SVG_NS, tag);
+    Object.entries(attrs || {}).forEach(([k, v]) => n.setAttribute(k, v));
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  /* replaceChildren(null) would insert the text "null", so drop empty entries first */
+  const fill = (node, kids) => node.replaceChildren(...kids.filter((k) => k != null));
+  /* Top of the y axis: a round number whose half is also tidy, so the three axis labels read cleanly */
+  function niceMax(v, integers) {
+    if (!(v > 0)) return 1;
+    const exp = Math.pow(10, Math.floor(Math.log10(v)));
+    if (exp < 10) {
+      if (integers) return Math.max(2, Math.ceil(v / 2) * 2);
+      return [1, 2, 3, 4, 5, 6, 8, 10].map((f) => f * exp).find((c) => c >= v);
+    }
+    return [1, 1.2, 1.6, 2, 2.4, 3, 4, 5, 6, 8, 10].map((f) => f * exp).find((c) => c >= v);
+  }
+  const noData = () => el('div', { class: 'state', text: 'No data yet.' });
+
+  function renderBars(m, unit) {
+    const pts = pointsOf(m).sort((a, b) => (b.value ?? -1) - (a.value ?? -1));
+    const shown = pts.slice(0, 10);
+    const max = Math.max(...shown.map((p) => p.value || 0), 0) || 1;
+    const list = el('ul', { class: 'bars' }, shown.map((p) => {
+      const bar = el('div', { class: 'bar-fill' });
+      bar.style.width = p.value ? Math.max(2, Math.round((p.value / max) * 100)) + '%' : '0';
+      const sub = [p.sub && p.sub !== '—' ? p.sub : null, p.row.verified === false ? 'Unverified (see Locations tab)' : null]
+        .concat(m.extras.filter((k) => isNum(p.row[k])).map((k) => humanize(k).toLowerCase() + ' ' + fmtNum(Number(p.row[k]))))
+        .filter(Boolean).join(', ');
+      return el('li', { class: 'bar-row' },
+        el('div', {}, el('span', { class: 'bar-name', text: p.label || '—' }), sub ? el('span', { class: 'bar-sub', text: sub }) : null),
+        el('div', { class: 'bar-track' }, bar),
+        el('div', { class: 'bar-value', text: p.value == null ? '—' : fmtNum(p.value) + (unit ? ' ' + unit : '') }));
+    }));
+    const note = pts.length > shown.length
+      ? el('p', { class: 'more-note', text: 'Showing the top ' + shown.length + ' of ' + pts.length + '. The CSV has all of them.' })
+      : null;
+    return [list, note];
+  }
+
+  function renderDonut(m) {
+    let pts = pointsOf(m).filter((p) => p.value > 0).sort((a, b) => b.value - a.value);
+    if (!pts.length) return [noData()];
+    if (pts.length > PALETTE.length) {
+      const rest = pts.slice(PALETTE.length - 1);
+      pts = pts.slice(0, PALETTE.length - 1).concat([{ label: 'Everything else', value: rest.reduce((a, p) => a + p.value, 0) }]);
+    }
+    const total = pts.reduce((a, p) => a + p.value, 0);
+    const svg = svgEl('svg', { class: 'donut', viewBox: '0 0 42 42', role: 'img', 'aria-label': 'Complaints by category, ' + total + ' in total' });
+    svg.append(svgEl('circle', { class: 'donut-track', cx: 21, cy: 21, r: 15.9155 }));
+    let done = 0;
+    pts.forEach((p, i) => {
+      const share = (p.value / total) * 100;
+      const gap = pts.length > 1 ? Math.min(0.8, share / 4) : 0;
+      const seg = svgEl('circle', {
+        cx: 21, cy: 21, r: 15.9155,
+        'stroke-dasharray': (share - gap).toFixed(3) + ' ' + (100 - share + gap).toFixed(3),
+        'stroke-dashoffset': (25 - done).toFixed(3),
+      });
+      seg.style.stroke = PALETTE[i];
+      seg.append(svgEl('title', {}, p.label + ': ' + fmtNum(p.value)));
+      svg.append(seg);
+      done += share;
+    });
+    svg.append(svgEl('text', { class: 'donut-total', x: 21, y: 22.5, 'text-anchor': 'middle' }, fmtNum(total)));
+    svg.append(svgEl('text', { class: 'donut-caption', x: 21, y: 27, 'text-anchor': 'middle' }, 'complaints'));
+
+    const legend = el('ul', { class: 'legend' }, pts.map((p, i) => {
+      const dot = el('span', { class: 'swatch' });
+      dot.style.background = PALETTE[i];
+      return el('li', {}, dot, el('span', { class: 'legend-name', text: p.label || '—' }),
+        el('span', { class: 'legend-val', text: fmtNum(p.value) + ' (' + Math.round((p.value / total) * 100) + '%)' }));
+    }));
+    return [el('div', { class: 'donut-wrap' }, svg, legend)];
+  }
+
+  function renderLine(m) {
+    let pts = pointsOf(m).filter((p) => p.value != null);
+    if (pts.length && pts.every((p) => /^\d{4}-\d{2}/.test(p.label))) pts.sort((a, b) => (a.label < b.label ? -1 : a.label > b.label ? 1 : 0));
+    pts = pts.slice(-24);
+    if (!pts.length) return [noData()];
+    const n = pts.length;
+    const top = niceMax(Math.max(...pts.map((p) => p.value)), pts.every((p) => Number.isInteger(p.value)));
+    const x = (i) => ((i + 0.5) / n) * 100;   // same fractions as the label columns below
+    const y = (v) => (v / top) * 100;
+
+    const line = pts.map((p, i) => x(i).toFixed(2) + ',' + (100 - y(p.value)).toFixed(2)).join(' ');
+    const svg = svgEl('svg', { class: 'line-svg', viewBox: '0 0 100 100', preserveAspectRatio: 'none', 'aria-hidden': 'true' });
+    svg.append(svgEl('polygon', { class: 'line-area', points: x(0).toFixed(2) + ',100 ' + line + ' ' + x(n - 1).toFixed(2) + ',100' }));
+    svg.append(svgEl('polyline', { class: 'line-path', points: line }));
+
+    const axis = el('div', { class: 'y-axis' });
+    const plot = el('div', { class: 'line-plot' });
+    [0, 0.5, 1].forEach((t) => {
+      const g = el('div', { class: 'grid-line' });
+      g.style.bottom = t * 100 + '%';
+      const lab = el('div', { class: 'y-label', text: fmtNum(top * t) });
+      lab.style.bottom = t * 100 + '%';
+      plot.append(g);
+      axis.append(lab);
+    });
+    plot.append(svg);
+    pts.forEach((p, i) => {
+      const dot = el('div', { class: 'dot', title: shortDate(p.label) + ': ' + fmtNum(p.value) });
+      dot.style.left = x(i) + '%';
+      dot.style.bottom = y(p.value) + '%';
+      plot.append(dot);
+      if (n <= 12) {
+        const val = el('div', { class: 'dot-val', text: fmtNum(p.value) });
+        val.style.left = x(i) + '%';
+        val.style.bottom = 'calc(' + y(p.value) + '% + 10px)';
+        plot.append(val);
+      }
+    });
+
+    const step = n > 12 ? Math.ceil(n / 8) : 1;
+    const labels = el('div', { class: 'x-labels' }, pts.map((p, i) => el('div', { class: 'x-label', text: i % step === 0 ? shortDate(p.label) : '' })));
+    labels.style.gridTemplateColumns = 'repeat(' + n + ', minmax(0, 1fr))';
+    return [el('div', { class: 'line-chart', role: 'img', 'aria-label': 'Complaints over time: ' + pts.map((p) => shortDate(p.label) + ' ' + fmtNum(p.value)).join(', ') },
+      el('div', { class: 'line-body' }, axis, plot), labels)];
+  }
+
+  function renderColumns(m, unit) {
+    const pts = pointsOf(m).sort((a, b) => (b.value ?? -1) - (a.value ?? -1)).slice(0, 12);
+    if (!pts.length) return [noData()];
+    const max = Math.max(...pts.map((p) => p.value || 0), 0) || 1;
+    const grid = el('div', { class: 'cols' }, pts.map((p) => {
+      const bar = el('div', { class: 'col-bar' });
+      bar.style.height = p.value ? Math.max(3, Math.round((p.value / max) * 150)) + 'px' : '0';
+      const extra = m.extras.filter((k) => isNum(p.row[k])).map((k) => humanize(k).toLowerCase() + ' ' + fmtNum(Number(p.row[k]))).join(', ');
+      return el('div', { class: 'col-cell', title: (p.label || '') + ': ' + (p.value == null ? 'no data' : fmtNum(p.value)) },
+        el('div', { class: 'col-val', text: p.value == null ? '—' : fmtNum(p.value) }),
+        el('div', { class: 'col-plot' }, bar),
+        el('div', { class: 'col-label', text: p.label || '—' }),
+        extra ? el('div', { class: 'col-sub', text: extra }) : null);
+    }));
+    grid.style.gridTemplateColumns = 'repeat(' + pts.length + ', minmax(0, 1fr))';
+    return [grid, unit ? el('p', { class: 'more-note', text: 'Values are in ' + unit + '.' }) : null];
+  }
+
+  function ring(fraction, label) {
+    const share = Math.max(0, Math.min(1, fraction)) * 100;
+    const svg = svgEl('svg', { class: 'ring', viewBox: '0 0 42 42', role: 'img', 'aria-label': label });
+    svg.append(svgEl('circle', { class: 'ring-track', cx: 21, cy: 21, r: 15.9155 }));
+    if (share > 0) svg.append(svgEl('circle', { class: 'ring-arc', cx: 21, cy: 21, r: 15.9155, 'stroke-dasharray': share.toFixed(2) + ' ' + (100 - share).toFixed(2), 'stroke-dashoffset': 25 }));
+    svg.append(svgEl('text', { class: 'ring-text', x: 21, y: 24, 'text-anchor': 'middle' }, Math.round(share) + '%'));
+    return svg;
+  }
+
+  function shortDate(label) {
+    let m = /^(\d{4})-(\d{2})-(\d{2})/.exec(label);
+    if (m) return new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+    m = /^(\d{4})-(\d{2})$/.exec(label);
+    if (m) return new Date(+m[1], +m[2] - 1, 1).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
+    return label;
+  }
+
+  const RATIO_KEYS = ['pending', 'high_priority', 'resolved', 'under_review'];
+  function kpiEntries(data) {
+    const out = [];
+    if (Array.isArray(data)) {
+      const m = shape(toRows(data), COUNT_HINTS);
+      if (m) pointsOf(m).forEach((p) => { if (p.value != null) out.push({ label: p.label, value: fmtNum(p.value), ratio: null }); });
+      return out;
+    }
+    const total = Number(data && (data.total_complaints ?? data.total));
+    const walk = (obj, prefix, depth) => {
+      for (const [k, v] of Object.entries(obj || {})) {
+        if (v == null || Array.isArray(v)) continue;
+        if (typeof v === 'object') { if (depth < 1) walk(v, k, depth + 1); continue; }
+        const shown = typeof v === 'number' ? fmtNum(v) : typeof v === 'boolean' ? (v ? 'Yes' : 'No') : String(v);
+        const ratio = depth === 0 && RATIO_KEYS.includes(k.toLowerCase()) && isNum(v) && total > 0 ? Math.min(1, Number(v) / total) : null;
+        out.push({ label: humanize(prefix ? prefix + ' ' + k : k), value: shown, ratio });
+      }
+    };
+    walk(data, '', 0);
+    return out;
+  }
+
+  function rowsToTable(rows) {
+    const keys = [...new Set(rows.flatMap((r) => Object.keys(r)))];
+    return [keys, ...rows.map((r) => keys.map((k) => (r[k] && typeof r[k] === 'object' ? labelOf(r[k]) : r[k])))];
+  }
+
+  function exportSection(sec) {
+    const rows = sectionRows[sec.id];
+    if (!rows || !rows.length) { toast('Nothing to export yet.', true); return; }
+    downloadCsv(sec.file + '-' + today() + '.csv', rowsToTable(rows));
+    toast('Exported ' + titleOf(sec).toLowerCase());
+  }
+
+  async function loadSection(sec) {
+    sectionBody[sec.id].replaceChildren(loadingDots());
+    const [r] = await Promise.allSettled([api(pathOf(sec))]);
+    if (isLocked()) return;
+    const netMsg = r.status === 'rejected' && r.reason && r.reason.name === 'TypeError' ? await friendlyError(r.reason) : '';
+    renderSection(sec, r, netMsg);
+  }
+
+  function buildAnalyticsShell() {
+    $('anGrid').replaceChildren(...SECTIONS.map((sec) => {
+      const body = el('div', {}, loadingDots());
+      sectionBody[sec.id] = body;
+      const csv = el('button', { class: 'btn btn-ghost btn-small csv-btn', type: 'button', text: 'CSV', 'aria-label': 'Download ' + sec.title.toLowerCase() + ' as CSV' });
+      csv.addEventListener('click', () => exportSection(sec));
+      const title = el('h3', { text: titleOf(sec) });
+      sectionTitle[sec.id] = title;
+      let weeks = null;
+      if (sec.id === 'trends') {
+        weeks = el('select', { class: 'no-print', 'aria-label': 'Weeks to show' },
+          [4, 8, 12].map((n) => el('option', { value: String(n), text: 'Last ' + n + ' weeks' })));
+        weeks.value = String(trendWeeks);
+        weeks.addEventListener('change', () => {
+          trendWeeks = Number(weeks.value);
+          title.textContent = titleOf(sec);
+          loadSection(sec);
+        });
+      }
+      return el('section', { class: 'panel an-card' + (sec.wide ? ' wide' : '') },
+        el('div', { class: 'an-card-head' }, title, el('div', { class: 'an-card-tools' }, weeks, csv)), body);
+    }));
+  }
+
+  function renderSection(sec, result, netMsg) {
+    const body = sectionBody[sec.id];
+    if (result.status === 'rejected') {
+      sectionRows[sec.id] = null;
+      const r = result.reason;
+      body.replaceChildren(el('div', { class: 'state' }, el('div', { class: 'error-note', text: r && r.name === 'TypeError' ? netMsg : (r && r.message) || 'Request failed' })));
+      return;
+    }
+    const data = result.value;
+    const rows = toRows(data);
+    sectionRows[sec.id] = rows;
+    if (Array.isArray(data) && !data.length) { body.replaceChildren(el('div', { class: 'state', text: 'No data yet.' })); return; }
+    const m = shape(rows, sec.hints, sec.labels);
+    if (!m) {
+      fill(body, [
+        el('div', { class: 'restricted-note', text: "Couldn't chart this response, so it is shown as returned." }),
+        el('pre', { class: 'raw', text: JSON.stringify(data, null, 2).slice(0, 1500) })]);
+      return;
+    }
+    const draw = {
+      donut: () => renderDonut(m),
+      line: () => renderLine(m),
+      columns: () => renderColumns(m, sec.unit),
+      bars: () => renderBars(m, sec.unit),
+    }[sec.kind || 'bars'];
+    fill(body, draw());
+  }
+
+  async function loadAnalytics() {
+    const token = ++analyticsToken;
+    $('anSub').textContent = 'Loading…';
+    const results = await Promise.allSettled([api('/api/analytics/kpis'), ...SECTIONS.map((sec) => api(pathOf(sec)))]);
+    if (token !== analyticsToken || isLocked()) return;
+    const net = results.find((r) => r.status === 'rejected' && r.reason && r.reason.name === 'TypeError');
+    const netMsg = net ? await friendlyError(net.reason) : '';
+    if (token !== analyticsToken) return;
+
+    const kpi = results[0];
+    if (kpi.status === 'fulfilled') {
+      const entries = kpiEntries(kpi.value).slice(0, 8);
+      fill($('kpis'), entries.map((e) =>
+        el('div', { class: 'panel kpi' },
+          el('div', {}, el('div', { class: 'kpi-value', text: e.value }), el('div', { class: 'kpi-label', text: e.label })),
+          e.ratio != null ? ring(e.ratio, e.label + ': ' + Math.round(e.ratio * 100) + '% of all complaints') : null)));
+    } else {
+      $('kpis').replaceChildren();
+    }
+    SECTIONS.forEach((sec, i) => renderSection(sec, results[i + 1], netMsg));
+    analyticsLoaded = results.some((r) => r.status === 'fulfilled');
+    $('anSub').textContent = analyticsLoaded
+      ? 'Updated ' + new Date().toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' })
+      : netMsg || 'Could not load analytics.';
+  }
+
+  async function downloadReport() {
+    showTab('analytics');
+    if (!analyticsLoaded) await loadAnalytics();
+    $('printDate').textContent = new Date().toLocaleString('en-IN', { dateStyle: 'long', timeStyle: 'short' });
+    window.print();
+  }
+
+  /* ---------- Locations ---------- */
+  let locations = [];
+  let locationsLoaded = false;
+
+  const verifiedOf = (l) => (typeof l.verified === 'boolean' ? l.verified : typeof l.is_verified === 'boolean' ? l.is_verified : null);
+  const locName = (l) => l.name || l.label || l.display_name || l.full_name
+    || [l.building, l.floor, l.area, l.specific].filter(Boolean).join(' - ') || ('Location ' + (idOf(l) ?? ''));
+  function locCount(l) {
+    for (const k of ['complaint_count', 'complaints', 'count']) if (isNum(l[k])) return Number(l[k]);
+    return null;
+  }
+
+  function locRow(l) {
+    const v = verifiedOf(l);
+    const n = locCount(l);
+    const badge = v === null ? null : el('span', { class: 'badge ' + (v ? 'verified' : 'pending'), text: v ? 'Verified' : 'Unverified' });
+    let verify = null;
+    if (v === false) {
+      verify = el('button', { class: 'btn btn-small no-print', type: 'button', text: 'Verify', 'aria-label': 'Verify ' + locName(l) });
+      verify.addEventListener('click', () => verifyLocation(l, verify));
+    }
+    return el('div', { class: 'loc-row' },
+      el('div', {},
+        el('div', { class: 'loc-name', text: locName(l) }),
+        n != null ? el('div', { class: 'loc-meta', text: fmtNum(n) + (n === 1 ? ' complaint' : ' complaints') }) : null),
+      el('div', { class: 'loc-actions' }, badge, verify));
+  }
+
+  function renderLocations() {
+    const pending = locations.filter((l) => verifiedOf(l) === false);
+    $('locSub').textContent = locations.length ? pending.length + ' of ' + locations.length + ' need verification' : '';
+    const filter = $('locFilter').value;
+    let list = locations.slice();
+    if (filter === 'pending') list = pending;
+    else if (filter === 'verified') list = locations.filter((l) => verifiedOf(l) === true);
+    list.sort((a, b) => (verifiedOf(a) === false ? 0 : 1) - (verifiedOf(b) === false ? 0 : 1) || locName(a).localeCompare(locName(b)));
+    if (!list.length) {
+      $('locList').replaceChildren(el('div', { class: 'state', text: filter === 'pending' ? 'Nothing needs verifying right now.' : 'No locations to show.' }));
+      return;
+    }
+    $('locList').replaceChildren(...list.map(locRow));
+  }
+
+  async function loadLocations() {
+    $('locSub').textContent = 'Loading…';
+    $('locList').replaceChildren(loadingDots());
+    try {
+      const loaded = asList(await api('/api/locations'));
+      if (isLocked()) return;
+      locations = loaded;
+      locationsLoaded = true;
+      renderLocations();
+    } catch (e) {
+      locationsLoaded = false;
+      $('locSub').textContent = '';
+      const message = await friendlyError(e);
+      const retry = el('button', { class: 'btn btn-ghost', type: 'button', text: 'Try again' });
+      retry.addEventListener('click', loadLocations);
+      $('locList').replaceChildren(el('div', { class: 'state' }, el('div', { class: 'error-note', text: message }), retry));
+    }
+  }
+
+  async function verifyLocation(l, btn) {
+    const id = idOf(l);
+    if (id == null) { toast("This location has no id in the API response, so it can't be verified.", true); return; }
+    btn.disabled = true;
+    try {
+      await api('/api/locations/' + encodeURIComponent(id) + '/verify', { method: 'POST' });
+      if ('is_verified' in l) l.is_verified = true; else l.verified = true;
+      analyticsLoaded = false; // hotspots show the verified flag
+      renderLocations();
+      toast('Location verified');
+    } catch (e) {
+      btn.disabled = false;
+      toast(e && e.name === 'TypeError' ? await friendlyError(e) : "Couldn't verify: " + e.message, true);
+    }
+  }
+
+  /* ---------- Tabs ---------- */
+  const TABS = ['complaints', 'analytics', 'locations'];
+  function showTab(name) {
+    TABS.forEach((t) => {
+      const on = t === name;
+      $('tab-' + t).hidden = !on;
+      $('tabBtn-' + t).setAttribute('aria-selected', String(on));
+      $('tabBtn-' + t).tabIndex = on ? 0 : -1;
+    });
+    try { history.replaceState(null, '', '#' + name); } catch (_) {}
+    if (name === 'analytics' && !analyticsLoaded) loadAnalytics();
+    if (name === 'locations' && !locationsLoaded) loadLocations();
+  }
+
+  /* ---------- Wire up ---------- */
+  FILTERS.forEach(([, id]) => $(id).addEventListener('change', loadComplaints));
+  $('clearBtn').addEventListener('click', clearFilters);
+  $('refreshBtn').addEventListener('click', refreshAll);
+  $('exportBtn').addEventListener('click', exportComplaints);
+  $('anRefresh').addEventListener('click', loadAnalytics);
+  $('reportBtn').addEventListener('click', downloadReport);
+  $('tabBtn-complaints').addEventListener('click', () => showTab('complaints'));
+  $('tabBtn-analytics').addEventListener('click', () => showTab('analytics'));
+  $('tabBtn-locations').addEventListener('click', () => showTab('locations'));
+  $('locFilter').addEventListener('change', renderLocations);
+  $('locRefresh').addEventListener('click', loadLocations);
+  document.querySelector('.tabs').addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    const i = TABS.findIndex((t) => !$('tab-' + t).hidden);
+    const next = TABS[(i + (e.key === 'ArrowRight' ? 1 : -1) + TABS.length) % TABS.length];
+    showTab(next);
+    $('tabBtn-' + next).focus();
+  });
+
+  /* ---------- Dashboard sign-in ---------- */
+  /* Late responses must never repaint a page that has been locked */
+  function isLocked() { return !$('loginScreen').hidden; }
+
+  function startApp() {
+    buildAnalyticsShell();
+    showSignIn();
+    loadDepartments();
+    loadComplaints();
+    const wanted = location.hash.slice(1);
+    showTab(TABS.includes(wanted) ? wanted : 'complaints');
+  }
+
+  function unlockDashboard() {
+    $('loginScreen').hidden = true;
+    $('loginPass').value = '';
+    $('loginError').textContent = '';
+    document.querySelector('main').hidden = false;
+    $('signOutBtn').hidden = false;
+    startApp();
+  }
+
+  function lockDashboard(message) {
+    setDashAuth(null);
+    staffAuth = null;
+    currentList = [];
+    analyticsLoaded = false;
+    locationsLoaded = false;
+    locations = [];
+    ['queue', 'kpis', 'anGrid', 'locList', 'restrictedBody', 'restrictedTools'].forEach((id) => $(id).replaceChildren());
+    document.querySelector('main').hidden = true;
+    $('signOutBtn').hidden = true;
+    $('loginScreen').hidden = false;
+    $('loginError').textContent = message || '';
+    $('loginUser').focus();
+  }
+
+  $('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = $('loginBtn');
+    btn.disabled = true;
+    $('loginError').textContent = '';
+    const header = basicHeader($('loginUser').value.trim(), $('loginPass').value);
+    const previous = dashAuth;
+    dashAuth = header;
+    try {
+      await api('/api/analytics/kpis', { quiet: true }); // any dashboard-protected route works as the check
+      setDashAuth(header);
+      unlockDashboard();
+    } catch (ex) {
+      dashAuth = previous;
+      $('loginError').textContent = ex.status === 401 ? 'Username or password is incorrect (the backend answered 401).' : await friendlyError(ex);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+  $('signOutBtn').addEventListener('click', () => lockDashboard());
+
+  if (dashAuth) unlockDashboard(); else lockDashboard();
+</script>
+</body>
+</html>

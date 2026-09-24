@@ -1,0 +1,71 @@
+complaint,actual_category
+"The AC in C block is not cooling",Infrastructure
+"The projector in our classroom is not working",Infrastructure
+"There is a water leakage near the staircase",Infrastructure
+"The lights in the computer lab keep flickering",Infrastructure
+"The Wi-Fi connection is very weak on the second floor",Infrastructure
+"The classroom fan is making a loud noise",Infrastructure
+"The washroom tap has been broken for several days",Infrastructure
+"The lift is not working properly",Infrastructure
+"The computers in Lab 3 are extremely slow",Infrastructure
+"The classroom benches are damaged",Infrastructure
+"My internal marks are missing",Academic
+"I am unable to register for one of my courses",Academic
+"The timetable has two classes scheduled at the same time",Academic
+"Our semester exam room has not been announced yet",Academic
+"The attendance percentage shown in the portal is incorrect",Academic
+"I cannot access the study material uploaded for my course",Academic
+"The assignment submission link is not available",Academic
+"My course result has not been updated",Academic
+"We have not received the revised exam schedule",Academic
+"The lab session was cancelled without any update",Academic
+"The professor changed the assignment deadline",Faculty
+"The professor has not shared the assignment instructions",Faculty
+"Our faculty member has not uploaded the lecture notes",Faculty
+"The professor keeps changing the class timing",Faculty
+"I have been waiting for feedback on my project from my faculty member",Faculty
+"The professor did not inform us about the change in syllabus",Faculty
+"Our faculty member is not responding to emails about the project",Faculty
+"The lecturer has been cancelling classes without prior notice",Faculty
+"I need clarification from my professor about the internal assessment",Faculty
+"The professor has not announced the project evaluation date",Faculty
+"The food served in the canteen was stale",Canteen
+"The canteen food was cold when it was served",Canteen
+"There was not enough food available during lunch",Canteen
+"The canteen has been very crowded during the lunch break",Canteen
+"The drinking water near the canteen is not available",Infrastructure
+"The food prices in the canteen have increased",Canteen
+"The vegetarian food counter is taking too long to serve students",Canteen
+"I found a foreign object in my food",Canteen
+"The canteen tables are not being cleaned properly",Canteen
+"The canteen closes before the announced closing time",Canteen
+"I need a bonafide certificate",Administration
+"I have been waiting for my student ID card",Administration
+"I need help correcting my details in the college records",Administration
+"The office has not processed my certificate request",Administration
+"I am unable to download my fee receipt",Administration
+"I need information about the procedure for getting a transfer certificate",Administration
+"My scholarship documents have not been verified",Administration
+"I have not received a response from the administration office",Administration
+"I need to update my emergency contact details",Administration
+"The fee payment status has not been updated in the portal",Administration
+"A student keeps disturbing me during class",Student-related
+"Some students are making too much noise in the library",Student-related
+"My group members are not cooperating with the project",Student-related
+"A student keeps taking my seat even after I ask them not to",Student-related
+"There is an argument between students in our class",Student-related
+"Some students are repeatedly damaging the classroom property",Student-related
+"My classmates are excluding me from the group project",Student-related
+"A student is spreading false information about me",Student-related
+"Someone was smoking near the college staircase",Infrastructure Hazard
+"I saw a student being harassed near the parking area",Safety
+"There is an exposed electrical wire near the classroom",Infrastructure Hazard
+"The staircase floor becomes very slippery when it rains",Infrastructure Hazard
+"I do not feel safe walking through the parking area after evening classes",Safety
+"There was a fight between two students near the canteen",Safety
+"The emergency exit is blocked by some equipment",Infrastructure Hazard
+"There is no proper lighting near the campus entrance at night",Infrastructure Hazard
+"I want to know when the next college holiday is",Other
+"I need information about the upcoming college event",Other
+"Where can I find the lost and found office?",Other
+"I want to know how to join a student club",Other
